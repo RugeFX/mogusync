@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme/app_tokens.dart';
 
@@ -16,7 +17,7 @@ class SearchPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              Icons.search_rounded,
+              LucideIcons.search,
               color: colorScheme.primary,
               size: AppCoreTokens.lg,
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme/app_tokens.dart';
 
@@ -16,7 +17,7 @@ class SettingsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              Icons.settings_outlined,
+              LucideIcons.settings,
               color: colorScheme.primary,
               size: AppCoreTokens.lg,
             ),

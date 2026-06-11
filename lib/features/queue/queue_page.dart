@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme/app_tokens.dart';
 
@@ -10,7 +11,7 @@ class QueuePage extends StatelessWidget {
     return const _PlaceholderTabPage(
       title: 'Queue',
       subtitle: 'Listening queue placeholder',
-      icon: Icons.queue_music_rounded,
+      icon: LucideIcons.listMusic,
     );
   }
 }

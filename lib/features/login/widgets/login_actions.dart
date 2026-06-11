@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/theme/app_tokens.dart';
 import '../login_credentials.dart';
@@ -114,7 +115,7 @@ class _CredentialsLoginPanelState extends State<CredentialsLoginPanel> {
             controller: _usernameController,
             label: 'Username',
             hint: 'Username',
-            icon: Icons.person_outline_rounded,
+            icon: LucideIcons.userRound,
             validator: LoginValidators.username,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
@@ -125,7 +126,7 @@ class _CredentialsLoginPanelState extends State<CredentialsLoginPanel> {
             focusNode: _passwordFocusNode,
             label: 'Password',
             hint: 'Password',
-            icon: Icons.lock_outline_rounded,
+            icon: LucideIcons.lockKeyhole,
             obscureText: true,
             validator: LoginValidators.password,
             textInputAction: TextInputAction.done,
