@@ -1,6 +1,9 @@
 import 'package:go_router/go_router.dart';
 
-import '../../features/home/home_page.dart';
+import '../../features/queue/queue_page.dart';
+import '../../features/search/search_page.dart';
+import '../../features/settings/settings_page.dart';
+import '../navigation/app_shell.dart';
 import '../../features/login/login_mode.dart';
 import '../../features/login/login_page.dart';
 import 'app_routes.dart';
@@ -13,14 +16,45 @@ final appRouter = GoRouter(
       builder: (context, state) {
         return LoginPage(
           mode: LoginMode.credentials,
-          onCredentialsLogin: (_) => context.go(AppRoutes.home),
-          onDiscordLogin: () => context.go(AppRoutes.home),
+          onCredentialsLogin: (_) => context.go(AppRoutes.queue),
+          onDiscordLogin: () => context.go(AppRoutes.queue),
         );
       },
     ),
     GoRoute(
       path: AppRoutes.home,
-      builder: (context, state) => const HomePage(),
+      redirect: (context, state) => AppRoutes.queue,
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return AppShell(navigationShell: navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.queue,
+              builder: (context, state) => const QueuePage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.search,
+              builder: (context, state) => const SearchPage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.settings,
+              builder: (context, state) => const SettingsPage(),
+            ),
+          ],
+        ),
+      ],
     ),
   ],
 );
