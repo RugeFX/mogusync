@@ -42,7 +42,7 @@ class MogusyncTabBar extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(AppCoreTokens.md),
                       topRight: Radius.circular(AppCoreTokens.md),
                     ),
