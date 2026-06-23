@@ -18,6 +18,8 @@ class MogusyncTabBar extends StatelessWidget {
   static const _items = [
     _MogusyncTabItem(icon: LucideIcons.listMusic, label: 'Queue'),
     _MogusyncTabItem(icon: LucideIcons.search, label: 'Search'),
+    _MogusyncTabItem(icon: LucideIcons.usersRound, label: 'Servers'),
+    _MogusyncTabItem(icon: LucideIcons.library, label: 'Library'),
     _MogusyncTabItem(icon: LucideIcons.settings, label: 'Settings'),
   ];
 

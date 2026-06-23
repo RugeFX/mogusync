@@ -1,11 +1,13 @@
 import 'package:go_router/go_router.dart';
 
-import '../../features/queue/queue_page.dart';
-import '../../features/search/search_page.dart';
-import '../../features/settings/settings_page.dart';
-import '../navigation/app_shell.dart';
+import '../../features/library/library_page.dart';
 import '../../features/login/login_mode.dart';
 import '../../features/login/login_page.dart';
+import '../../features/queue/queue_page.dart';
+import '../../features/search/search_page.dart';
+import '../../features/servers/servers_page.dart';
+import '../../features/settings/settings_page.dart';
+import '../navigation/app_shell.dart';
 import 'app_routes.dart';
 
 final appRouter = GoRouter(
@@ -43,6 +45,22 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.search,
               builder: (context, state) => const SearchPage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.servers,
+              builder: (context, state) => const ServersPage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.library,
+              builder: (context, state) => const LibraryPage(),
             ),
           ],
         ),
