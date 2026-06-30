@@ -54,7 +54,8 @@ class NowPlayingCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const MockTrackThumbnail(
+              TrackCoverImage(
+                imageUrl: track.thumbnailUrl,
                 seed: 5,
                 size: 112,
                 borderRadius: AppCoreTokens.sm,

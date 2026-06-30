@@ -34,7 +34,8 @@ class QueueTrackTile extends StatelessWidget {
             color: colorScheme.onSurfaceVariant.withValues(alpha: 0.74),
           ),
           const SizedBox(width: AppCoreTokens.base),
-          MockTrackThumbnail(
+          TrackCoverImage(
+            imageUrl: track.thumbnailUrl,
             seed: index,
             size: 56,
             borderRadius: AppCoreTokens.sm,

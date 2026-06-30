@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_tokens.dart';
+import '../../core/router/app_routes.dart';
+import '../auth/auth_controller.dart';
 import 'login_credentials.dart';
 import 'login_mode.dart';
 import 'login_theme.dart';
@@ -8,21 +12,28 @@ import 'widgets/brand_lockup.dart';
 import 'widgets/login_actions.dart';
 import 'widgets/sound_wave_background.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends ConsumerWidget {
   const LoginPage({
     super.key,
     this.mode = LoginMode.credentials,
     this.onDiscordLogin,
-    this.onCredentialsLogin,
   });
 
   final LoginMode mode;
   final VoidCallback? onDiscordLogin;
-  final ValueChanged<LoginCredentials>? onCredentialsLogin;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loginTheme = context.loginTheme;
+    final authState = ref.watch(authControllerProvider);
+
+    if (authState.isAuthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.go(AppRoutes.queue);
+        }
+      });
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -76,8 +87,13 @@ class LoginPage extends StatelessWidget {
                           ),
                           LoginActions(
                             mode: mode,
+                            isSubmitting: authState.isLoading,
+                            errorMessage: authState.errorMessage,
                             onDiscordLogin: onDiscordLogin,
-                            onCredentialsLogin: onCredentialsLogin,
+                            onCredentialsLogin: (credentials) =>
+                                _handleLogin(context, ref, credentials),
+                            onCredentialsRegister: (credentials) =>
+                                _handleRegister(context, ref, credentials),
                           ),
                         ],
                       ),
@@ -90,6 +106,38 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogin(
+    BuildContext context,
+    WidgetRef ref,
+    LoginCredentials credentials,
+  ) async {
+    await ref
+        .read(authControllerProvider.notifier)
+        .login(email: credentials.email, password: credentials.password);
+
+    if (context.mounted && ref.read(authControllerProvider).isAuthenticated) {
+      context.go(AppRoutes.queue);
+    }
+  }
+
+  Future<void> _handleRegister(
+    BuildContext context,
+    WidgetRef ref,
+    LoginCredentials credentials,
+  ) async {
+    await ref
+        .read(authControllerProvider.notifier)
+        .register(
+          email: credentials.email,
+          password: credentials.password,
+          username: credentials.username,
+        );
+
+    if (context.mounted && ref.read(authControllerProvider).isAuthenticated) {
+      context.go(AppRoutes.queue);
+    }
   }
 }
 

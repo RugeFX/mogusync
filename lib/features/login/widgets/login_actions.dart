@@ -13,13 +13,20 @@ class LoginActions extends StatelessWidget {
   const LoginActions({
     super.key,
     required this.mode,
+    this.isSubmitting = false,
+    this.errorMessage,
     this.onDiscordLogin,
     this.onCredentialsLogin,
+    this.onCredentialsRegister,
   });
 
   final LoginMode mode;
+  final bool isSubmitting;
+  final String? errorMessage;
   final VoidCallback? onDiscordLogin;
-  final ValueChanged<LoginCredentials>? onCredentialsLogin;
+  final Future<void> Function(LoginCredentials credentials)? onCredentialsLogin;
+  final Future<void> Function(LoginCredentials credentials)?
+  onCredentialsRegister;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +39,10 @@ class LoginActions extends StatelessWidget {
         ),
         LoginMode.credentials => CredentialsLoginPanel(
           key: const ValueKey(LoginMode.credentials),
-          onPressed: onCredentialsLogin,
+          isSubmitting: isSubmitting,
+          errorMessage: errorMessage,
+          onLogin: onCredentialsLogin,
+          onRegister: onCredentialsRegister,
         ),
       },
     );
@@ -62,9 +72,18 @@ class DiscordLoginPanel extends StatelessWidget {
 }
 
 class CredentialsLoginPanel extends StatefulWidget {
-  const CredentialsLoginPanel({super.key, this.onPressed});
+  const CredentialsLoginPanel({
+    super.key,
+    this.isSubmitting = false,
+    this.errorMessage,
+    this.onLogin,
+    this.onRegister,
+  });
 
-  final ValueChanged<LoginCredentials>? onPressed;
+  final bool isSubmitting;
+  final String? errorMessage;
+  final Future<void> Function(LoginCredentials credentials)? onLogin;
+  final Future<void> Function(LoginCredentials credentials)? onRegister;
 
   @override
   State<CredentialsLoginPanel> createState() => _CredentialsLoginPanelState();
@@ -72,20 +91,25 @@ class CredentialsLoginPanel extends StatefulWidget {
 
 class _CredentialsLoginPanelState extends State<CredentialsLoginPanel> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   var _autovalidateMode = AutovalidateMode.disabled;
+  var _isRegistering = false;
 
   @override
   void dispose() {
+    _emailController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
+    _usernameFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     setState(() {
       _autovalidateMode = AutovalidateMode.onUserInteraction;
     });
@@ -94,16 +118,36 @@ class _CredentialsLoginPanelState extends State<CredentialsLoginPanel> {
       return;
     }
 
-    widget.onPressed?.call(
+    final credentials = LoginCredentials(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      username: _usernameController.text.trim(),
+    );
+
+    if (_isRegistering) {
+      await widget.onRegister?.call(credentials);
+      return;
+    }
+
+    await widget.onLogin?.call(
       LoginCredentials(
-        username: _usernameController.text.trim(),
+        email: _emailController.text.trim(),
         password: _passwordController.text,
       ),
     );
   }
 
+  void _toggleMode() {
+    setState(() {
+      _isRegistering = !_isRegistering;
+      _autovalidateMode = AutovalidateMode.disabled;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Form(
       key: _formKey,
       autovalidateMode: _autovalidateMode,
@@ -114,15 +158,44 @@ class _CredentialsLoginPanelState extends State<CredentialsLoginPanel> {
           LoginTagline(centered: true, mode: LoginMode.credentials),
           const SizedBox(height: AppCoreTokens.md),
           MogusyncTextField(
-            controller: _usernameController,
-            label: 'Username',
-            hint: 'Username',
-            icon: LucideIcons.userRound,
-            validator: LoginValidators.username,
+            controller: _emailController,
+            label: 'Email',
+            hint: 'Email',
+            icon: LucideIcons.mail,
+            validator: LoginValidators.email,
             textInputAction: TextInputAction.next,
-            onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+            onFieldSubmitted: (_) {
+              if (_isRegistering) {
+                _usernameFocusNode.requestFocus();
+                return;
+              }
+
+              _passwordFocusNode.requestFocus();
+            },
           ),
           const SizedBox(height: AppCoreTokens.gutter),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: _isRegistering
+                ? Padding(
+                    key: const ValueKey('register-username-field'),
+                    padding: const EdgeInsets.only(
+                      bottom: AppCoreTokens.gutter,
+                    ),
+                    child: MogusyncTextField(
+                      controller: _usernameController,
+                      focusNode: _usernameFocusNode,
+                      label: 'Username',
+                      hint: 'Optional username',
+                      icon: LucideIcons.userRound,
+                      validator: LoginValidators.optionalUsername,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) =>
+                          _passwordFocusNode.requestFocus(),
+                    ),
+                  )
+                : const SizedBox.shrink(key: ValueKey('login-username-field')),
+          ),
           MogusyncTextField(
             controller: _passwordController,
             focusNode: _passwordFocusNode,
@@ -134,8 +207,32 @@ class _CredentialsLoginPanelState extends State<CredentialsLoginPanel> {
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => _submit(),
           ),
+          if (widget.errorMessage != null) ...[
+            const SizedBox(height: AppCoreTokens.sm),
+            Text(
+              widget.errorMessage!,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMd.copyWith(color: colorScheme.error),
+            ),
+          ],
           const SizedBox(height: AppCoreTokens.md),
-          MogusyncButton(label: 'Login', onPressed: _submit),
+          MogusyncButton(
+            label: widget.isSubmitting
+                ? 'Please wait...'
+                : _isRegistering
+                ? 'Register'
+                : 'Login',
+            onPressed: widget.isSubmitting ? null : _submit,
+          ),
+          const SizedBox(height: AppCoreTokens.base),
+          TextButton(
+            onPressed: widget.isSubmitting ? null : _toggleMode,
+            child: Text(
+              _isRegistering
+                  ? 'Already have an account? Login'
+                  : 'Need an account? Register',
+            ),
+          ),
         ],
       ),
     );

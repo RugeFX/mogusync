@@ -81,6 +81,50 @@ class MockTrackThumbnail extends StatelessWidget {
   }
 }
 
+class TrackCoverImage extends StatelessWidget {
+  const TrackCoverImage({
+    super.key,
+    required this.seed,
+    this.imageUrl,
+    this.size = 52,
+    this.borderRadius = AppCoreTokens.base,
+  });
+
+  final int seed;
+  final String? imageUrl;
+  final double size;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = this.imageUrl;
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return MockTrackThumbnail(
+        seed: seed,
+        size: size,
+        borderRadius: borderRadius,
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: Image.network(
+        imageUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return MockTrackThumbnail(
+            seed: seed,
+            size: size,
+            borderRadius: borderRadius,
+          );
+        },
+      ),
+    );
+  }
+}
+
 class RequesterAvatar extends StatelessWidget {
   const RequesterAvatar({super.key, required this.name, required this.seed});
 

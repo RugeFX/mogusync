@@ -20,6 +20,7 @@ abstract final class MockQueueData {
 
   static const upcomingTracks = [
     QueueTrack(
+      id: 'mock-starry-days',
       title: 'Starry Days',
       artist: 'Kano',
       source: 'YouTube',
@@ -27,6 +28,7 @@ abstract final class MockQueueData {
       requestedBy: 'Nyanters',
     ),
     QueueTrack(
+      id: 'mock-coffee-shop',
       title: 'Coffee Shop',
       artist: 'BGM channel',
       source: 'YouTube',
@@ -34,6 +36,7 @@ abstract final class MockQueueData {
       requestedBy: 'Okiaya',
     ),
     QueueTrack(
+      id: 'mock-marigold',
       title: 'Marigold',
       artist: 'Aimyon',
       source: 'YouTube',
@@ -41,6 +44,7 @@ abstract final class MockQueueData {
       requestedBy: 'Shion',
     ),
     QueueTrack(
+      id: 'mock-anemone',
       title: 'Anemone',
       artist: 'Ryuusa',
       source: 'YouTube',
@@ -48,6 +52,7 @@ abstract final class MockQueueData {
       requestedBy: 'Koorne',
     ),
     QueueTrack(
+      id: 'mock-rainy-day',
       title: 'Rainy Day',
       artist: 'Chillhop',
       source: 'YouTube',
@@ -55,6 +60,7 @@ abstract final class MockQueueData {
       requestedBy: 'Mio',
     ),
     QueueTrack(
+      id: 'mock-twilight',
       title: 'Twilight',
       artist: 'Aimer',
       source: 'YouTube',

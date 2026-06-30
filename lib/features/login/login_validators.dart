@@ -1,13 +1,28 @@
 abstract final class LoginValidators {
-  static String? username(String? value) {
+  static String? email(String? value) {
+    final email = value?.trim() ?? '';
+
+    if (email.isEmpty) {
+      return 'Email is required';
+    }
+
+    final emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailPattern.hasMatch(email)) {
+      return 'Enter a valid email address';
+    }
+
+    return null;
+  }
+
+  static String? optionalUsername(String? value) {
     final username = value?.trim() ?? '';
 
     if (username.isEmpty) {
-      return 'Username is required';
+      return null;
     }
 
-    if (username.length < 3) {
-      return 'Username must be at least 3 characters';
+    if (username.length > 64) {
+      return 'Username must be 64 characters or fewer';
     }
 
     return null;

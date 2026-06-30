@@ -7,6 +7,7 @@ import '../../features/queue/queue_page.dart';
 import '../../features/search/search_page.dart';
 import '../../features/servers/servers_page.dart';
 import '../../features/settings/settings_page.dart';
+import '../navigation/animated_branch_container.dart';
 import '../navigation/app_shell.dart';
 import 'app_routes.dart';
 
@@ -16,20 +17,22 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.login,
       builder: (context, state) {
-        return LoginPage(
-          mode: LoginMode.credentials,
-          onCredentialsLogin: (_) => context.go(AppRoutes.queue),
-          onDiscordLogin: () => context.go(AppRoutes.queue),
-        );
+        return const LoginPage(mode: LoginMode.credentials);
       },
     ),
     GoRoute(
       path: AppRoutes.home,
       redirect: (context, state) => AppRoutes.queue,
     ),
-    StatefulShellRoute.indexedStack(
+    StatefulShellRoute(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);
+      },
+      navigatorContainerBuilder: (context, navigationShell, children) {
+        return AnimatedBranchContainer(
+          currentIndex: navigationShell.currentIndex,
+          children: children,
+        );
       },
       branches: [
         StatefulShellBranch(
