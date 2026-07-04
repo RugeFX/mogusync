@@ -27,6 +27,11 @@ class QueuePage extends ConsumerWidget {
     final authState = ref.watch(authControllerProvider);
     final queueState = ref.watch(mockQueueControllerProvider);
 
+    Future<void> refreshQueuePage() async {
+      await ref.read(authControllerProvider.notifier).refreshCurrentUser();
+      await ref.read(mockQueueControllerProvider.notifier).refresh();
+    }
+
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -38,17 +43,23 @@ class QueuePage extends ConsumerWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppCoreTokens.marginMobile,
-            AppCoreTokens.md,
-            AppCoreTokens.marginMobile,
-            AppCoreTokens.md,
-          ),
-          child: _QueueBody(
-            authState: authState,
-            queueState: queueState,
-            colorScheme: colorScheme,
+        child: RefreshIndicator(
+          color: colorScheme.primary,
+          backgroundColor: colorScheme.surfaceContainerHigh,
+          onRefresh: refreshQueuePage,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(
+              AppCoreTokens.marginMobile,
+              AppCoreTokens.md,
+              AppCoreTokens.marginMobile,
+              AppCoreTokens.md,
+            ),
+            child: _QueueBody(
+              authState: authState,
+              queueState: queueState,
+              colorScheme: colorScheme,
+            ),
           ),
         ),
       ),
@@ -87,12 +98,16 @@ class _QueueBody extends ConsumerWidget {
         onRetry: () => ref.read(mockQueueControllerProvider.notifier).refresh(),
       ),
       data: (state) {
-        final tracks = state.items
+        final upcomingItems =
+            state.upcoming.isNotEmpty || state.nowPlaying != null
+            ? state.upcoming
+            : state.items;
+        final tracks = upcomingItems
             .map((item) => _queueTrackFromItem(item, authState.user?.id))
             .toList(growable: false);
-        final nowPlaying = state.items.isEmpty
+        final nowPlaying = state.nowPlaying == null
             ? null
-            : _nowPlayingFromItem(state.items.first);
+            : _nowPlayingFromItem(state.nowPlaying!);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,18 +127,19 @@ class _QueueBody extends ConsumerWidget {
                     NowPlayingCard(
                       track: nowPlaying,
                       embedded: true,
+                      isPlaying: state.isPlaying,
                       onSave: _handleSaveCurrentTrack,
                       onShuffle: _handleShuffle,
                       onPrevious: _handlePrevious,
                       onPlayPause: _handlePlayPause,
-                      onNext: _handleNext,
+                      onNext: () => _handleNext(ref),
                       onRepeat: _handleRepeat,
                     ),
                     VoteSkipRow(
                       votes: 3,
                       voteTarget: 5,
                       attached: true,
-                      onVoteSkip: _handleVoteSkip,
+                      onVoteSkip: () => _handleVoteSkip(ref),
                       onOpenDjTools: _handleOpenDjTools,
                     ),
                   ],
@@ -141,8 +157,9 @@ class _QueueBody extends ConsumerWidget {
             const SizedBox(height: AppCoreTokens.sm),
             _UpcomingQueueList(
               tracks: tracks,
-              onClearQueue: _handleClearQueue,
-              onOpenTrackMenu: _handleOpenTrackMenu,
+              onClearQueue: () => _handleClearQueue(ref),
+              onOpenTrackMenu: (track) =>
+                  _handleOpenTrackMenu(context, ref, track),
             ),
             const SizedBox(height: AppCoreTokens.sm),
             _FooterHint(colorScheme: colorScheme),
@@ -157,9 +174,8 @@ class _QueueBody extends ConsumerWidget {
     // TODO: Connect to server/channel selection flow.
   }
 
-  void _handleVoteSkip() {
-    debugPrint('Vote skip pressed');
-    // TODO: Submit vote skip for the active session.
+  void _handleVoteSkip(WidgetRef ref) {
+    ref.read(mockQueueControllerProvider.notifier).skipPlayback();
   }
 
   void _handleOpenDjTools() {
@@ -167,14 +183,84 @@ class _QueueBody extends ConsumerWidget {
     // TODO: Open DJ tools for permitted users.
   }
 
-  void _handleClearQueue() {
-    debugPrint('Clear queue pressed');
-    // TODO: Confirm and clear queue for users with permission.
+  void _handleClearQueue(WidgetRef ref) {
+    ref.read(mockQueueControllerProvider.notifier).clearQueue();
   }
 
-  void _handleOpenTrackMenu(QueueTrack track) {
-    debugPrint('Open track menu pressed for: ${track.title}');
-    // TODO: Open track overflow actions for track.
+  void _handleOpenTrackMenu(
+    BuildContext context,
+    WidgetRef ref,
+    QueueTrack track,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: colorScheme.surfaceContainer,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppCoreTokens.gutter,
+              0,
+              AppCoreTokens.gutter,
+              AppCoreTokens.gutter,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    LucideIcons.arrowUpToLine,
+                    color: colorScheme.primary,
+                  ),
+                  title: Text(
+                    'Move to top',
+                    style: AppTypography.bodyLg.copyWith(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    ref
+                        .read(mockQueueControllerProvider.notifier)
+                        .moveTrack(queueItemId: track.id, position: 0);
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(LucideIcons.trash2, color: colorScheme.error),
+                  title: Text(
+                    'Remove from queue',
+                    style: AppTypography.bodyLg.copyWith(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: Text(
+                    track.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    ref
+                        .read(mockQueueControllerProvider.notifier)
+                        .removeTrack(queueItemId: track.id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _handleSaveCurrentTrack() {
@@ -197,9 +283,8 @@ class _QueueBody extends ConsumerWidget {
     // TODO: Toggle playback state.
   }
 
-  void _handleNext() {
-    debugPrint('Next track pressed');
-    // TODO: Request next track.
+  void _handleNext(WidgetRef ref) {
+    ref.read(mockQueueControllerProvider.notifier).skipPlayback();
   }
 
   void _handleRepeat() {
@@ -216,6 +301,7 @@ class _QueueBody extends ConsumerWidget {
       sourceUrl: item.sourceUrl,
       duration: item.duration,
       requestedBy: item.requestedByUserId == currentUserId ? 'You' : 'Listener',
+      position: item.position,
       thumbnailUrl: item.coverImageUrl,
     );
   }

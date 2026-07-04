@@ -24,6 +24,7 @@ integration, local storage, and a clean feature-based architecture.
 - Search page with API-backed list data.
 - Shared authentication and queue state with Riverpod.
 - Local token storage using Shared Preferences.
+- Local notification after a track is added to the queue.
 - Themeable dark lavender UI based on reusable design tokens and components.
 
 ## App Navigation
@@ -139,11 +140,15 @@ token and returns the app to an unauthenticated state.
 
 Required by the UAS guide: implement at least one mobile device feature.
 
-Current status: **pending**.
+Implemented feature: **Local Notification**.
 
-Recommended implementation for MoguSync: **Local Notification**. A good fit
-would be sending a local notification after a track is added to the queue or
-when the queue changes.
+When an authenticated user adds a mock track from the Search page, the app calls
+the queue API, refreshes the queue, and shows a local notification:
+
+```text
+Track added
+<track title> was added to the queue.
+```
 
 ## Environment Configuration
 
@@ -230,6 +235,6 @@ docs/screenshots/
 | Local storage | Done | Shared Preferences token storage |
 | Login page | Done | Login/register flow |
 | Main/home page | Done | Queue tab |
-| Camera or local notification | Pending | Recommended: local notification |
+| Camera or local notification | Done | Local notification after adding a track |
 | README documentation | Done | This README |
 | Screenshots | Pending | Add before submission |

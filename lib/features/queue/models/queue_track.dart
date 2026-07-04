@@ -6,6 +6,7 @@ class QueueTrack {
     required this.source,
     required this.duration,
     required this.requestedBy,
+    this.position = 0,
     this.sourceUrl,
     this.thumbnailUrl,
     this.requesterAvatarUrl,
@@ -17,6 +18,7 @@ class QueueTrack {
   final String source;
   final Duration duration;
   final String requestedBy;
+  final int position;
   final String? sourceUrl;
   final String? thumbnailUrl;
   final String? requesterAvatarUrl;

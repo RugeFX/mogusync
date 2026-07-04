@@ -16,6 +16,7 @@ class NowPlayingCard extends StatelessWidget {
     required this.onNext,
     required this.onRepeat,
     this.embedded = false,
+    this.isPlaying = false,
   });
 
   final NowPlayingTrack track;
@@ -26,6 +27,7 @@ class NowPlayingCard extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback onRepeat;
   final bool embedded;
+  final bool isPlaying;
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +133,10 @@ class NowPlayingCard extends StatelessWidget {
                     tooltip: 'Previous',
                     emphasized: true,
                   ),
-                  _PlayPauseButton(onPressed: onPlayPause),
+                  _PlayPauseButton(
+                    isPlaying: isPlaying,
+                    onPressed: onPlayPause,
+                  ),
                   _TransportButton(
                     icon: LucideIcons.skipForward,
                     onPressed: onNext,
@@ -199,8 +204,9 @@ class _TransportButton extends StatelessWidget {
 }
 
 class _PlayPauseButton extends StatelessWidget {
-  const _PlayPauseButton({required this.onPressed});
+  const _PlayPauseButton({required this.isPlaying, required this.onPressed});
 
+  final bool isPlaying;
   final VoidCallback onPressed;
 
   @override
@@ -225,9 +231,13 @@ class _PlayPauseButton extends StatelessWidget {
       ),
       child: IconButton(
         onPressed: onPressed,
-        icon: Icon(LucideIcons.play, fill: 1, color: colorScheme.surface),
+        icon: Icon(
+          isPlaying ? LucideIcons.pause : LucideIcons.play,
+          fill: 1,
+          color: colorScheme.surface,
+        ),
         iconSize: 38,
-        tooltip: 'Play',
+        tooltip: isPlaying ? 'Pause' : 'Play',
         style: IconButton.styleFrom(
           minimumSize: const Size(72, 72),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,

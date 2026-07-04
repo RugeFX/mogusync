@@ -170,6 +170,10 @@ class SourceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final icon = switch (source) {
+      'spotify_metadata' => SimpleIcons.spotify,
+      _ => SimpleIcons.youtube,
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -182,9 +186,7 @@ class SourceBadge extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(SimpleIcons.youtube, size: 11, color: colorScheme.onSurface),
-        ],
+        children: [Icon(icon, size: 11, color: colorScheme.onSurface)],
       ),
     );
   }

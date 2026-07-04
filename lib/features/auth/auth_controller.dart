@@ -105,6 +105,33 @@ class AuthController extends Notifier<AuthState> {
     state = const AuthState.unauthenticated();
   }
 
+  Future<void> refreshCurrentUser() async {
+    final token =
+        state.accessToken ??
+        await ref.read(tokenStoreProvider).readAccessToken();
+    if (token == null) {
+      return;
+    }
+
+    try {
+      final user = await ref
+          .read(authRepositoryProvider)
+          .fetchCurrentUser(accessToken: token);
+      state = AuthState.authenticated(user: user, accessToken: token);
+    } on ApiException catch (error) {
+      if (error.isUnauthorized) {
+        await handleUnauthorized();
+        return;
+      }
+
+      state = AuthState.unauthenticated(errorMessage: error.message);
+    } catch (_) {
+      state = const AuthState.unauthenticated(
+        errorMessage: 'Unable to refresh your session. Please login again.',
+      );
+    }
+  }
+
   Future<void> handleUnauthorized() async {
     await ref.read(tokenStoreProvider).clearAccessToken();
     state = const AuthState.unauthenticated(

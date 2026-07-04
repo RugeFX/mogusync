@@ -24,13 +24,39 @@ class MogusyncApiClient {
 
   Future<Map<String, Object?>> postJson(
     String path, {
-    required Map<String, Object?> body,
+    Map<String, Object?> body = const {},
     String? accessToken,
   }) async {
     final response = await httpClient.post(
       _uri(path),
       headers: _headers(accessToken: accessToken),
       body: jsonEncode(body),
+    );
+
+    return _decodeResponse(response);
+  }
+
+  Future<Map<String, Object?>> patchJson(
+    String path, {
+    required Map<String, Object?> body,
+    String? accessToken,
+  }) async {
+    final response = await httpClient.patch(
+      _uri(path),
+      headers: _headers(accessToken: accessToken),
+      body: jsonEncode(body),
+    );
+
+    return _decodeResponse(response);
+  }
+
+  Future<Map<String, Object?>> deleteJson(
+    String path, {
+    String? accessToken,
+  }) async {
+    final response = await httpClient.delete(
+      _uri(path),
+      headers: _headers(accessToken: accessToken),
     );
 
     return _decodeResponse(response);

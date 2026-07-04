@@ -61,3 +61,33 @@ class QueueResponse {
   final String sessionId;
   final List<QueueItem> items;
 }
+
+class PlaybackResponse {
+  const PlaybackResponse({
+    required this.sessionId,
+    required this.upcoming,
+    required this.isPlaying,
+    this.nowPlaying,
+  });
+
+  factory PlaybackResponse.fromJson(Map<String, Object?> json) {
+    final rawNowPlaying = json['nowPlaying'];
+    final rawUpcoming = json['upcoming']! as List<Object?>;
+
+    return PlaybackResponse(
+      sessionId: json['sessionId'] as String,
+      nowPlaying: rawNowPlaying == null
+          ? null
+          : QueueItem.fromJson(rawNowPlaying as Map<String, Object?>),
+      upcoming: rawUpcoming
+          .map((item) => QueueItem.fromJson(item! as Map<String, Object?>))
+          .toList(growable: false),
+      isPlaying: json['isPlaying'] as bool,
+    );
+  }
+
+  final String sessionId;
+  final QueueItem? nowPlaying;
+  final List<QueueItem> upcoming;
+  final bool isPlaying;
+}
