@@ -7,13 +7,20 @@ import '../../features/queue/queue_page.dart';
 import '../../features/search/search_page.dart';
 import '../../features/servers/servers_page.dart';
 import '../../features/settings/settings_page.dart';
+import '../../features/splash/splash_page.dart';
 import '../navigation/animated_branch_container.dart';
 import '../navigation/app_shell.dart';
 import 'app_routes.dart';
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.login,
+  initialLocation: AppRoutes.splash,
   routes: [
+    GoRoute(
+      path: AppRoutes.splash,
+      builder: (context, state) {
+        return const SplashPage();
+      },
+    ),
     GoRoute(
       path: AppRoutes.login,
       builder: (context, state) {

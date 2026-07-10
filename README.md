@@ -1,5 +1,9 @@
 # MoguSync
 
+<p align="center">
+  <img src="assets/brand/logo.svg" alt="MoguSync logo" width="160" />
+</p>
+
 MoguSync is a Flutter mobile app for controlling a shared Discord music queue.
 The app is designed as a remote controller: users authenticate, browse mock
 tracks from a REST API, add tracks to a persisted queue, and view the active
@@ -208,19 +212,18 @@ flutter build web
 
 ## Screenshots
 
-Add final screenshots here before submission.
+Captured on the iPhone 16e iOS Simulator against the local API.
 
-Suggested screenshots:
+| Login | Queue |
+| --- | --- |
+| <img src="docs/screenshots/01-login.png" alt="MoguSync login screen" width="280" /> | <img src="docs/screenshots/02-queue.png" alt="MoguSync queue screen with current and upcoming tracks" width="280" /> |
 
-- Login screen
-- Queue screen
-- Search screen with API tracks
-- Add-to-queue state
-- Mobile feature screen/notification result
+| Search | Add to queue |
+| --- | --- |
+| <img src="docs/screenshots/03-search-results.png" alt="API-backed track search results" width="280" /> | <img src="docs/screenshots/04-add-to-queue.png" alt="Track marked as added to the queue" width="280" /> |
 
-```text
-docs/screenshots/
-```
+The final capture shows the successful add-to-queue state. The same action
+also invokes the app's local notification service on supported mobile targets.
 
 ## UAS Requirement Checklist
 
@@ -237,4 +240,4 @@ docs/screenshots/
 | Main/home page | Done | Queue tab |
 | Camera or local notification | Done | Local notification after adding a track |
 | README documentation | Done | This README |
-| Screenshots | Pending | Add before submission |
+| Screenshots | Done | `docs/screenshots/` |
